@@ -1,4 +1,6 @@
-// Raphel connection dings (eigentlich übernommen von deren beispielwebsite)
+Raphael.el.isVisible = function() {
+  return this.node.style.display !== "none";
+};
 
 Raphael.fn.connection = function (obj1, obj2, line, bg) {
     if (obj1.line && obj1.from && obj1.to) {
@@ -79,7 +81,8 @@ Raphael.fn.connection = function (obj1, obj2, line, bg) {
             bg: bg && bg.split && this.path(path).attr({stroke: bg.split("|")[0],
                                                         fill: "none",
                                                         "stroke-width": bg.split("|")[1] || 3}),
-            line: this.path(path).attr({stroke: color, fill: "none"}),
+            line: this.path(path).attr({stroke: color,
+                                          fill: "none"}),
             from: obj1,
             to: obj2,
             // punk anfügen
@@ -113,8 +116,12 @@ var onStart = function () {
 	}
 	// in Beiden fällen brauchen wir aber die x und y koordinate.
 	// rect und image beziehen sich auf den Punkt links oben, circles auf ihren center
-	this.ox = (this.type == "rect" || this.type == "image") ? this.attr("x") : this.attr("cx");
-	this.oy = (this.type == "rect" || this.type == "image") ? this.attr("y") : this.attr("cy");
+	this.ox = (this.type == "rect" || this.type == "image") ?
+             this.attr("x") :
+             this.attr("cx");
+	this.oy = (this.type == "rect" || this.type == "image") ?
+             this.attr("y") :
+             this.attr("cy");
 
 };
 
@@ -134,10 +141,11 @@ var onMove = function (dx, dy) {
         // zugehörigen Handle aus liste bekommen
         var thisTarget = r.getById( icons[this.id] );
 
-        // mit denen aus onStart festgelegeten werten ebenfalls die neue Position errechnen
+        // mit denen aus onStart festgelegeten werten ebenfalls die
+        // neue Position errechnen
 	    thisTarget.attr({ cx: this.oxh + dx, cy: this.oyh + dy });
     }
-
+    // console.log("path: "+ r.getById(icons[this.id]).path);
     // Connections Updaten
     for (var i = connections.length; i--;) {
         r.connection(connections[i]);
@@ -173,12 +181,13 @@ var onEnd = function(eve) {
 			    y: r.getById(handles[this.id]).attr('y')
 		    };
 			this.attr({ cx: i.x, cy: i.y });
-
+      console.log(this.attr);
 
 			// und wir müssen nochmal die connections aktualisieren
 			for (var j = connections.length; i--;) {
 		        r.connection(connections[i]);
-		    }
+		  }
+      // r.getById(icons[this.id]).hide();
 		}
 	}
 };
@@ -209,27 +218,31 @@ var connections = [];
   eingezeichnet und eventListener angeheftet
 */
 function addAss(){
-    var icon = r.image('http://placekitten.com/g/200/200',10, 10, 100, 100)
-		.attr({ "stroke-width":0 , cursor: "move"})
-		.drag(onMove, onStart, onEnd)
-		.click(function(eve){
+
+  var icon = r.image('http://placekitten.com/g/200/200',10, 10, 100, 100)
+    .attr({ "stroke-width":0 , cursor: "move"})
+    .drag(onMove, onStart, onEnd)
+    .dblclick(function(eve){
       eve.stopPropagation();
       console.log('clicked on Icon '+this.id);})
-		.id;
+      .id;
+
 
     var i = {
-	    x: r.getById(icon).attr('x') + r.getById(icon).attr('width'),
-	    y: r.getById(icon).attr('y')
+      x: r.getById(icon).attr('x') + r.getById(icon).attr('width'),
+      y: r.getById(icon).attr('y')
     };
 
-	var targ = r.ellipse(i.x, i.y, 20, 20)
-		.attr({fill: 'fuchsia', "stroke-width":0, cursor: "move"})
-		.drag(onMove, onStart, onEnd)
-    .click(function(eve){
-      eve.stopPropagation();
-      console.log("clicked on"+self_id);
-    })
-		.id;
+    var targ = r.ellipse(i.x, i.y, 20, 20)
+    .attr({fill: 'fuchsia', "stroke-width":0, cursor: "move"})
+    .drag(onMove, onStart, onEnd)
+    .click(function(eve){ eve.stopPropagation(); })
+    .id;
+
+    // console.log(menu);
+    console.log(r.getById(targ));
+    console.log(r.getById(icon));
+    // icon.dblclick(function() { menu.menu("image", targ) });
 
     // Icon und Handle verbinden
     addConnection(icon, targ);
@@ -237,10 +250,8 @@ function addAss(){
     // eintragen
     icons[icon]   = targ;
     handles[targ] = icon;
-
     return;
 }
-
 
 /*
 	addConnections ausgelagert
@@ -248,116 +259,32 @@ function addAss(){
 	notwendige Parameter sind (oh wunder) die Beiden elemente die wir verbinden wollen
 */
 function addConnection(leftOne, rightOne){
-	// das ist ein wenig strange. wir pushen eine connection
-    // danach holen wir die letzte connection und erhalten die circle ID
     connections.push( r.connection( r.getById(leftOne), r.getById(rightOne), "#fff"));
     var self_id = connections[ connections.length-1 ].circle.id;
     r.getById(self_id)
-     .click(function(eve){
+     .dblclick(function(eve){
        eve.stopPropagation();
        console.log('clicked on line '+self_id);
+      //  menu.menu("line", r.getById(self_id));
     });
     icons[self_id]= -1;
+    console.log('foobar: '+ self_id);
 }
-
-// Person
-var Person = function() {
-  var self = this,
-      birthDate = new Date(),
-      givenName = "",
-      name = "",
-      notes = "",
-      image = "",
-      targed = false;
-
-  // functions
-  function setBirthDate(date) {
-    birthDate = date;
-    return self;
-  }
-
-  function getBirthDate() {
-      return birthDate;
-  }
-
-  function setGivenName(gname) {
-    givenName = gname;
-    return self;
-  }
-
-
-
-  return this;
-};
-
-var Relation = function() {
-  var self = this,
-      affectedPersons = [],
-      kind = "",
-      graphic = "",
-      notes = "";
-  return this;
-};
-
-// Menu
-var Menu =  function() {
-  var self = this,
-  thisContext = "",
-  contextDic = {};
-
-  function openMenu(context, x, y){
-    document.body.appendChild( createMenuForContext(context) );
-    return self;
-  }
-
-  function closeMenu(){
-    document.body.removeChild( document.getElementById('menu') );
-    return self;
-  }
-
-  function createMenuForContext(context, x, y){
-    var div = document.createElement('div'),
-    divWidth  = 0,
-    divHeight = 0;
-    // if (context == "image") {
-    //
-    // } else if (context == "line") {
-    //
-    // } else {
-    //
-    // }
-    div.style.background = "black";
-    div.style.zIndex = 100;
-    div.innerHTML = "foobar";
-    div.id =  "menu";
-
-    return div;
-  }
-
-  this.openMenu = openMenu;
-  this.closeMenu = closeMenu;
-  return this;
-};
-
 
 /*
 	Init stuff
 */
 
 // prepopulate with first element
-addAss();
+// addAss();
 
 
 // Eventlistener to holder div to open/close Menu
-var menu = Menu();
-var menuEnabled = false;
+var menu = new Menu();
 document.querySelector('[data-trigger="add_element"]')
-        .addEventListener('click', function() {
-            if (!menuEnabled) {
-              menu.openMenu();
-              menuEnabled = true;
-            } else {
-              menu.closeMenu();
-              menuEnabled = false;
-            }
-          });
+        .addEventListener('dblclick', function() { menu.menu(); });
+
+// var hammerelement = document.getElementById('holder');
+// Hammer(hammerelement).on('press', function() {
+//   menu.menu();
+// });

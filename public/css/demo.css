@@ -30,3 +30,9 @@ body {
   width: 30%;
   margin-left: -10%
 }
+
+.menu-item {
+  float: left;
+  padding: 5%;
+  color: #ccc;
+}
