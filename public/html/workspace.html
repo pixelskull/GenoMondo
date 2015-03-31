@@ -8,17 +8,22 @@
         <style type="text/css" media="screen">
             p { text-align: center; }
         </style>
-    </head>
-    <body>
-        <!--p>Drag shapes around.</p-->
-        <div id="holder" data-trigger="add_element"></div>
-
-        <script src="/socket.io.js" type="text/javascript" charset="utf-8"></script>
+        
+        <script src="//cdn.socket.io/socket.io-1.3.5.js"" type="text/javascript" charset="utf-8"></script>
         <script src="/hammer.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="/raphael.js" type="text/javascript" charset="utf-8"></script>
         <script src="/person.js" type="text/javascript" charset="utf-8"></script>
         <script src="/relation.js" type="text/javascript" charset="utf-8"></script>
         <script src="/menu.js" type="text/javascript" charset="utf-8"></script>
-        <script src="/graffle.js" type="text/javascript" charset="utf-8"></script>
+    </head>
+    <body>
+        <!--p>Drag shapes around.</p-->
+        <div id="holder" data-trigger="add_element"></div>
+        
+		<script> 
+			var socket = io.connect();	
+		</script>
+		
+		<script src="/graffle.js" type="text/javascript" charset="utf-8"></script>
     </body>
 </html>

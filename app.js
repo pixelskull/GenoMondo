@@ -1,8 +1,17 @@
 //express.js
-var express = require('express');
-var app = express();
+// var express = require('express');
+// var app = express();
 //socket.io
-var io  = require('socket.io')(server);
+// var http = require('http').Server(app); 
+// var io  = require('socket.io')(server);
+var socket = require('socket.io'); 
+var express = require('express'); 
+var http = require('http'); 
+
+var app = express(); 
+var server = http.createServer(app);
+
+var io = socket.listen(server); 
 
 // functions
 var css       = function(req, res) { res.sendFile(__dirname+'/public/css/demo.css'); },
@@ -11,7 +20,7 @@ var css       = function(req, res) { res.sendFile(__dirname+'/public/css/demo.cs
     graffle   = function(req, res) { res.sendFile(__dirname+'/public/js/graffle.js'); },
     menu      = function(req, res) { res.sendFile(__dirname+'/public/js/menu.js'); },
     person    = function(req, res) { res.sendFile(__dirname+'/public/js/person.js'); },
-    relation  = function(req, res) { res.sendFile(__dirname+'/public/js/relation.js'); },
+    relation  = function(req, res) { res.sendFile(__dirname+'/public/js/relation.js'); };
     socket    = function(req, res) { res.sendFile(__dirname+'/public/js/socket.io.js'); };
 
 
@@ -28,18 +37,18 @@ app.get('/person.js', person);
 app.get('/relation.js', relation);
 app.get('/socket.io.js', socket);
 
-
 // app.get('/', home);
 app.get('/', workspace);
 
 io.sockets.on('connection', function(socket) {
+	console.log('a user is connected')
   //Cleaning when User is disconnected
   socket.on('disconnect', function() {
-
+  	console.log('a user is disconnected')
   });
 });
 
 //server start
-var server = app.listen(3000, function(){
+server.listen(3000, '127.0.0.1', function(){
   console.log("node up and running");
 });
