@@ -21,7 +21,32 @@
         <div id="holder" data-trigger="add_element"></div>
         
 		<script> 
-			var socket = io.connect();	
+			var io = io.connect();	
+			
+			io.on('connect', function(socket) {
+				console.log('connect');
+			});
+			
+			io.on('newPerson', function(person) {
+				console.log('newPerson');
+				console.log(person);
+			}); 
+				
+			io.on('newRelation', function(relation) {
+				console.log('newRelation');
+				console.log(relation);
+			});
+			
+			io.on('deleteElement', function(elementID) {
+				console.log('deleteElement'); 
+				console.log(elementID); 
+			}); 
+			
+			function newPerson(position, size) { io.emit('newPerson', {'position': position, 'size': size}); }
+			
+			function newRelation(element1, element2) { io.emit('newRelation', {'firstElement': element1, 'secondElement': element2}); }
+			
+			function deleteElement(id) { io.emit('deleteElement', {'id': id }); }
 		</script>
 		
 		<script src="/graffle.js" type="text/javascript" charset="utf-8"></script>

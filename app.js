@@ -37,8 +37,27 @@ app.get('/', workspace);
 io.sockets.on('connection', function(socket) {
 	console.log('a user is connected')
   //Cleaning when User is disconnected
+  
+  socket.on('newPerson', function(person) {
+	console.log('newPerson');   
+	console.log(person); 
+	socket.broadcast.emit('newPerson', person);
+  }); 
+  
+  socket.on('newRelation', function(relation) {
+  	console.log('newRelation'); 
+  	console.log(relation);
+  	socket.broadcast.emit('newRelation', relation);
+  }); 
+  
+  socket.on('deleteElement', function(elementID) {
+	  console.log('deleteElement'); 
+	  console.log(elementID);
+	  socket.broadcast.emit('deleteElement', elementID); 
+  }); 
+  
   socket.on('disconnect', function() {
-  	console.log('a user is disconnected')
+  	console.log('a user is disconnected');
   });
 });
 
