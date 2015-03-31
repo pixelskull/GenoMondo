@@ -1,9 +1,3 @@
-//express.js
-// var express = require('express');
-// var app = express();
-//socket.io
-// var http = require('http').Server(app); 
-// var io  = require('socket.io')(server);
 var socket = require('socket.io'); 
 var express = require('express'); 
 var http = require('http'); 

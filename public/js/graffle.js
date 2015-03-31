@@ -219,7 +219,7 @@ var connections = [];
 */
 function addAss(){
 
-  var icon = r.image('http://placekitten.com/g/200/200',10, 10, 100, 100)
+  var icon = r.image('http://placekitten.com/g/300/300',10, 10, 100, 100)
     .attr({ "stroke-width":0 , cursor: "move"})
     .drag(onMove, onStart, onEnd)
     .dblclick(function(eve){
