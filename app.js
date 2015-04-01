@@ -11,11 +11,14 @@ var io = socket.listen(server);
 var css       = function(req, res) { res.sendFile(__dirname+'/public/css/demo.css'); },
     raphael   = function(req, res) { res.sendFile(__dirname+'/public/js/raphael.js'); },
     hammer    = function(req, res) { res.sendFile(__dirname+'/public/js/hammer.min.js'); },
-    graffle   = function(req, res) { res.sendFile(__dirname+'/public/js/graffle.js'); },
+//    graffle   = function(req, res) { res.sendFile(__dirname+'/public/js/graffle.js'); },
+	fabric = function(req, res) { res.sendFile(__dirname+'/public/js/fabric.js'); },
+	graph = function(req, res) { res.sendFile(__dirname+'/public/js/graph.js'); },
     menu      = function(req, res) { res.sendFile(__dirname+'/public/js/menu.js'); },
     person    = function(req, res) { res.sendFile(__dirname+'/public/js/person.js'); },
-    relation  = function(req, res) { res.sendFile(__dirname+'/public/js/relation.js'); };
+    relation  = function(req, res) { res.sendFile(__dirname+'/public/js/relation.js'); },
     socket    = function(req, res) { res.sendFile(__dirname+'/public/js/socket.io.js'); };
+
 
 
 var home = function(req, res) {};
@@ -24,7 +27,9 @@ var workspace = function(req, res){ res.sendFile(__dirname+'/public/html/workspa
 // routing
 app.get('/demo.css', css);
 app.get('/raphael.js', raphael);
-app.get('/graffle.js', graffle);
+//app.get('/graffle.js', graffle);
+app.get('/fabric.js', fabric);
+app.get('/graph.js', graph);
 app.get('/menu.js', menu);
 app.get('/hammer.min.js', hammer);
 app.get('/person.js', person);

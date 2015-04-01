@@ -15,10 +15,12 @@
         <script src="/person.js" type="text/javascript" charset="utf-8"></script>
         <script src="/relation.js" type="text/javascript" charset="utf-8"></script>
         <script src="/menu.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/fabric.js" type="text/javascript" charset="utf-8"></script>
     </head>
     <body>
         <!--p>Drag shapes around.</p-->
-        <div id="holder" data-trigger="add_element"></div>
+        <!--div id="holder" data-trigger="add_element"></div-->
+		<canvas id="c" width="1024" height="768" style="border:1px solid #ccc"></canvas>
         
 		<script> 
 			var io = io.connect();	
@@ -49,6 +51,7 @@
 			function deleteElement(id) { io.emit('deleteElement', {'id': id }); }
 		</script>
 		
-		<script src="/graffle.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/graph.js" type="text/javascript" charset="utf-8"></script>
+		<!--script src="/graffle.js" type="text/javascript" charset="utf-8"></script-->
     </body>
 </html>
