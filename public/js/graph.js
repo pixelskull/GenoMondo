@@ -21,6 +21,7 @@ fabric.Image.fromURL('http://placekitten.com/g/300/300', function(oImg) {
   // EventListener for moving
   oImg.on('moving', function(options) {
 	propagateMove();
+	moved = true;
   });
   canvas.add(oImg);
   self.image = oImg;
@@ -74,31 +75,37 @@ return this;
 };
 
 // Connection für Beziehungen zweier Personen (Start Person ist immer gegeben, Zielperson steht zu Beginn noch nicht fest)
-Connection = function(startPerson) {
+Connection = function(startPerson, endPerson) {
 var self = this;
 this.startPerson = startPerson;
-this.endPerson;
+this.endPerson = endPerson;
 
 // Circle on Person
-var circleFrom = new fabric.Circle({
+self.circleFrom = new fabric.Circle({
   radius: 20, fill: 'blue', left: startPerson.getLeft() + startPerson.getWidth() - 20, top: startPerson.getTop() - 20
 });
-circleFrom.on('moving', function() {
+self.circleFrom.on('moving', function() {
 	self.updateLine()
+	moved = true;
 });
-circleFrom.on('modified', function() {
+self.circleFrom.on('modified', function() {
 	// Über Person?
+	var freeCircle = true;
 	canvas.forEachObject(function(obj) {
-      if (obj === circleFrom) return;
+      if (obj === self.circleFrom) return;
 	  if (obj.get('type') == 'image' 
-			&& obj.containsPoint(circleFrom.getCenterPoint())) {
+			&& obj.containsPoint(self.circleFrom.getCenterPoint())) {
+			freeCircle = false;
 		// find PersonElement
 		for (var i = 0; i < personen.length; i++) {
 			if (personen[i].image == obj) {
 				// try to add connection to new startPerson
 				if (personen[i].addConnection(self)) {
-					 // Remove connection from old startPerson
-					self.startPerson.removeConnection(self);
+					// Remove connection from old startPerson
+					if (self.startPerson) {
+						self.startPerson.removeConnection(self);
+					}
+					// Remove connection from old endPerson
 					// set new startPerson for connection
 					self.startPerson = personen[i];
 					// update visualization
@@ -110,20 +117,40 @@ circleFrom.on('modified', function() {
 		}
 	  }
     });
+	// freeCircle? 
+	if (freeCircle) {
+		// and valid connection?
+		if (self.endPerson) {
+			// Remove connection from old startPerson
+			if (self.startPerson) {
+				self.startPerson.removeConnection(self);
+			}
+			self.startPerson = undefined;
+			self.updateHandles(self.endPerson);
+		} else {
+			// not valid connection
+			alert("Verbindungen müssen immer zu mindestens einer Person gehören")
+			self.updateHandles(self.startPerson);
+		}
+	}
 });
-// Free Circle 
-var circleTo = new fabric.Circle({
-  radius: 20, fill: 'white', left: circleFrom.getLeft() + 40, top: circleFrom.getTop()
+
+// Second Circle 
+self.circleTo = new fabric.Circle({
+  radius: 20, fill: 'blue', left: self.circleFrom.getLeft() + 40, top: self.circleFrom.getTop()
 });
-circleTo.on('moving', function() {
+self.circleTo.on('moving', function() {
 	self.updateLine()
+	moved = true;
 });
-circleTo.on('modified', function() {
-	// Über Person?
+self.circleTo.on('modified', function() {
+	// Handle über Person?
+	var freeCircle = true;
 	canvas.forEachObject(function(obj) {
-      if (obj === circleTo) return;
+      if (obj === self.circleTo) return;
 	  if (obj.get('type') == 'image' 
-			&& obj.containsPoint(circleTo.getCenterPoint())) {
+			&& obj.containsPoint(self.circleTo.getCenterPoint())) {
+			freeCircle = false;
 		// find PersonElement
 		for (var i = 0; i < personen.length; i++) {
 			if (personen[i].image == obj) {
@@ -142,9 +169,26 @@ circleTo.on('modified', function() {
 		}
 	  }
     });
+	// freeCircle? 
+	if (freeCircle) {
+		// and valid connection?
+		if (self.startPerson) {
+			// Remove connection from old endPerson
+			if (self.endPerson) {
+				self.endPerson.removeConnection(self);
+			}
+			self.endPerson = undefined;
+			self.updateHandles(self.startPerson);
+		} else {
+			// not valid connection
+			alert("Verbindungen müssen immer zu mindestens einer Person gehören")
+			self.updateHandles(self.endPerson);
+		}
+	}
 });
+
 // Line between Circles
-var line = new fabric.Line([circleFrom.getLeft() + circleFrom.getRadiusX(), circleFrom.getTop() + circleFrom.getRadiusY(), circleTo.getLeft() + circleTo.getRadiusX(), circleTo.getTop() + circleTo.getRadiusY()], {
+self.line = new fabric.Line([self.circleFrom.getLeft() + self.circleFrom.getRadiusX(), self.circleFrom.getTop() + self.circleFrom.getRadiusY(), self.circleTo.getLeft() + self.circleTo.getRadiusX(), self.circleTo.getTop() + self.circleTo.getRadiusY()], {
       fill: 'blue',
       stroke: 'blue',
       strokeWidth: 2,
@@ -152,26 +196,29 @@ var line = new fabric.Line([circleFrom.getLeft() + circleFrom.getRadiusX(), circ
     });
 
 // Add all to Canvas
-canvas.add(line);
-canvas.add(circleFrom);
-canvas.add(circleTo);
+canvas.add(self.line);
+canvas.add(self.circleFrom);
+canvas.add(self.circleTo);
 
 // Update Connection after/during move of person
-this.updateHandles = function(person) {
-	// CircleMoving bewegt sich mit der übergebenen Person (pMoving)
-	// CircleUnmoving bewegt sich nicht bzw. kaum, ggf. auf der anderen Person (pUnmoving)
-	var pMoving = person;
+this.updateHandles = function() {
+	// pMoving gibt es immer, pUnmoving gibt es nur bei einer vollständigen Connection zwischen zwei Personen
+	// CircleMoving bewegt sich mit pMoving
+	// CircleUnmoving bewegt sich nicht bzw. kaum, ggf. auf der anderen Person
+	var pMoving;
 	var cMoving;
 	var pUnmoving;
 	var cUnmoving;
-	if (person == this.startPerson) {
-		cMoving = circleFrom;
-		cUnmoving = circleTo;
-		pUnmoving = this.endPerson;
+	if (self.startPerson) {
+		cMoving = self.circleFrom;
+		cUnmoving = self.circleTo;
+		pMoving = self.startPerson
+		pUnmoving = self.endPerson;
 	} else {
-		cMoving = circleTo;
-		cUnmoving = circleFrom;
-		pUnmoving = this.startPerson;
+		cMoving = self.circleTo;
+		cUnmoving = self.circleFrom;
+		pMoving = self.endPerson;
+		pUnmoving = self.startPerson;
 	}
 	
 	// Gibt es zwei Personen?
@@ -222,19 +269,88 @@ this.updateHandles = function(person) {
 }
 
 this.updateLine = function() {
-	line.set('x1', circleFrom.getLeft() + circleFrom.getRadiusX());
-	line.set('y1', circleFrom.getTop() + circleFrom.getRadiusY());
-	line.set('x2', circleTo.getLeft() + circleTo.getRadiusX());
-	line.set('y2', circleTo.getTop() + circleTo.getRadiusY());
-	line.setCoords();
+	self.line.set('x1', self.circleFrom.getLeft() + self.circleFrom.getRadiusX());
+	self.line.set('y1', self.circleFrom.getTop() + self.circleFrom.getRadiusY());
+	self.line.set('x2', self.circleTo.getLeft() + self.circleTo.getRadiusX());
+	self.line.set('y2', self.circleTo.getTop() + self.circleTo.getRadiusY());
+	self.line.setCoords();
 	canvas.renderAll();
 }
 
+// um die Darstellung zu korrigieren wenn eine Connection mit beiden Personen gleichzeitig erstellt wurde
+self.updateHandles(self.startPerson);
+
 };
 
-var addAss = function() {
+var addPerson = function() {
 	var person = new PersonElement();
 }
+
+var addConnection = function(p1, p2) {
+	var connection = new Connection(p1, p2);
+	if (!p1) {
+		alert("Eine Verbindung muss immer zu mindestens einer Person gehören");
+	} else {
+		p1.addConnection(connection);
+	}
+	if (p2) {
+		p2.addConnection(connection);
+	}
+}
+
+var removePerson = function(person) {
+	// Remove all free Connections and Persons from not free connections
+	// temp save for free connections (otherwise loop is disrupted by changing array during iteration)
+	var freeCons = [];
+	for (var i = 0; i < person.connections.length; i++) {
+		var con = person.connections[i];
+		// free connections?
+		if (con.startPerson == person) {
+			if (!con.endPerson) {
+				freeCons[freeCons.length] = con;
+			} else {
+				con.startPerson = undefined;
+				con.updateHandles();
+			}
+		} else {
+			if (!con.startPerson) {
+				freeCons[freeCons.length] = con;
+			} else {
+				con.endPerson = undefined;
+				con.updateHandles();
+			}
+		}
+	}
+	// Remove freeCons
+	for (var i = 0; i < freeCons.length; i++) {
+		removeConnection(freeCons[i]);
+	}
+	
+	// Remove PersonElement
+	// from list
+	var index = personen.indexOf(person);
+	if (index > -1) {
+		personen.splice(index, 1);
+	}
+	// from canvas
+	canvas.remove(person.image);
+}
+
+var removeConnection = function(connection) {
+	// Remove con from both persons
+	if (connection.startPerson) {
+		connection.startPerson.removeConnection(connection);
+	}
+	if (connection.endPerson) {
+		connection.endPerson.removeConnection(connection);
+	}
+	
+	// Remove visual elements from canvas
+	canvas.remove(connection.line);
+	canvas.remove(connection.circleFrom);
+	canvas.remove(connection.circleTo);
+}
+
 
 
 
@@ -244,3 +360,33 @@ var menu = new Menu();
 // Canvas does not support doubleclick Event!
 document.addEventListener('dblclick', function() { menu.menu();
 		});
+		
+// Event mouse:up only if not at the end of move
+var moved = false;
+canvas.on('mouse:up', function(options) {
+	if (moved) {
+		moved = false;
+	} else {
+		if (options.target && options.target.type == 'image') {
+			// search for person to open menu on
+			for (var i = 0; i < personen.length; i++) {
+				if (personen[i].image == options.target) {
+					menu.menu('image', personen[i]);
+					return;
+				}
+			}
+		} else if (options.target && (options.target.type == 'circle' || options.target.type == 'line')) {
+			// search for connection to open menu on
+			for (var i = 0; i < personen.length; i++) {
+				for (var j = 0; j < personen[i].connections.length; j++) {
+					var con = personen[i].connections[j];
+					if (con.circleFrom == options.target || con.circleTo == options.target || con.line == options.target) {
+						menu.menu('line', con);
+						return;
+					}
+				}
+			}
+		}
+		// sonst ignorieren
+	}
+});

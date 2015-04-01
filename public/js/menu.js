@@ -38,27 +38,27 @@ var Menu =  function() {
     divExit.innerHTML = "exit";
 
     if (context == "image") {
-      var divEditPerson = document.createElement('div'),
+      var divDeletePerson = document.createElement('div'),
       divRelation = document.createElement('div');
-      divEditPerson.className = "menu-item";
+      divDeletePerson.className = "menu-item";
       divRelation.className = "menu-item";
-      divRelation.addEventListener("click", function(){ menu();  }); //TODO: relation hide unhide
-      divEditPerson.addEventListener("click", function() { menu(); })
+      divRelation.addEventListener("click", function(){ addConnection(element); menu();  }); //TODO: relation hide unhide
+      divDeletePerson.addEventListener("click", function() {removePerson(element); menu(); })
       divRelation.innerHTML = "beziehung";
-      divEditPerson.innerHTML = "bearbeiten";
+      divDeletePerson.innerHTML = "löschen";
       div.appendChild(divRelation);
-      div.appendChild(divEditPerson);
+      div.appendChild(divDeletePerson);
       console.log(element)
     } else if (context == "line") {
       var divRelation = document.createElement('div');
       divRelation.className = "menu-item";
-      divRelation.addEventListener('click', function() { menu(); });
-      divRelation.innerHTML = "beziehung";
+      divRelation.addEventListener('click', function() {removeConnection(element); menu(); });
+      divRelation.innerHTML = "löschen";
       div.appendChild(divRelation);
     } else {
       var divAddPerson = document.createElement('div');
       divAddPerson.className = "menu-item";
-      divAddPerson.addEventListener("click", function() { addAss(); menu(); });
+      divAddPerson.addEventListener("click", function() { addPerson(); menu(); });
       divAddPerson.innerHTML = 'add Person';
       div.appendChild(divAddPerson);
     }
