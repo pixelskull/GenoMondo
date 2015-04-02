@@ -46,6 +46,7 @@ io.sockets.on('connection', function(socket) {
   socket.on('updatePersonPosition', function(person) {
 	  console.log('update Position'); 
 	  console.log(person);
+      socket.broadcast.emit('updatePersonPosition', person);
   }); 
   
   socket.on('newPerson', function(person) {
@@ -72,6 +73,6 @@ io.sockets.on('connection', function(socket) {
 });
 
 //server start
-server.listen(3000, '127.0.0.1', function(){
+server.listen(3000, function(){
   console.log("node up and running");
 });

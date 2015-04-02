@@ -25,7 +25,9 @@
 		<script src="/graph.js" type="text/javascript" charset="utf-8"></script>
         
 		<script> 
-			var io = io.connect();	
+			var io = io.connect();
+            
+            var elementMap = {};
 			
 			io.on('connect', function(socket) {
 				console.log('connect');
@@ -34,24 +36,34 @@
 			io.on('newPerson', function(person) {
 				console.log('newPerson');
 				console.log(person);
-				var personelement = new PersonElement(); 
+				var personelement = addPerson(person.id);
 				
-				console.log(personelement); 
-// 				personelement.person(); 
-// 				personelement.setLeft(person.position.x)
+				console.log(personelement);
+ 				personelement.setLeft(person.position.x);
 				personelement.setTop(person.position.y);
-// 				personelement.image.setTop(person.position.y);  
+                
+                elementMap[person.id] = personelement;
 			}); 
 			
 			io.on('updatePersonPosition', function(person) {
-				console.log('updatePersonPosition'); 
-				console.log(person); 
+				//console.log('updatePersonPosition');
+				//console.log(person);
+                
+                var personElement = elementMap[person.id];
+                personElement.setLeft(person.position.x);
+                personElement.setTop(person.position.y);
+                personElement.propagateMove();
 			}); 
 				
 			io.on('newRelation', function(relation) {
 				console.log('newRelation');
 				console.log(relation);
-				
+                
+                var p1 = elementMap[relation.firstElement];
+                if (relation.secondElement) var p2 = elementMap[relation.secondElement];
+                
+				var con = addConnectionWithId(relation.id, p1, p2);
+                elementMap[relation.id] = con;
 			});
 			
 			io.on('deleteElement', function(elementID) {
@@ -60,9 +72,9 @@
 				
 			}); 
 			
-			function newPerson(position, size) { io.emit('newPerson', {'position': position, 'size': size}); }
+			function newPerson(position, id) { io.emit('newPerson', {'position': position, 'id': id}); }
 			
-			function newRelation(element1, element2) { io.emit('newRelation', {'firstElement': element1, 'secondElement': element2}); }
+			function newRelation(id, element1, element2) { io.emit('newRelation', {'id': id, 'firstElement': element1, 'secondElement': element2}); }
 			
 			function deleteElement(id) { io.emit('deleteElement', {'id': id }); }
 			

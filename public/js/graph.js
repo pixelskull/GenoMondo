@@ -1,19 +1,27 @@
 // Access Canvas
 var canvas = new fabric.Canvas('c');
+// Global counter for IDs
+var idCounter = 1;
 
 // Sammlung aller PersonElemente
 var personen = [];
 
 // Graphische Repräsentation einer Person
-var PersonElement = function() {
+var PersonElement = function(id) {
 var self = this;
-// Zu Personensammlung hinzufügen
+// Zu Personensammlung hinzufŸgen
 personen[personen.length] = self;
 
 // Image (Beispiel)
 self.image = new fabric.Image();
 self.image.setLeft(50).setTop(50);
 self.connections = [];
+// Id
+if (id) {
+	self.id = id;
+} else {
+	self.id = idCounter++; //TODO update counter for all clients
+}
 
 // Initialize Person
 fabric.Image.fromURL('http://placekitten.com/g/300/300', function(oImg) {
@@ -23,11 +31,12 @@ fabric.Image.fromURL('http://placekitten.com/g/300/300', function(oImg) {
 
 	canvas.add(oImg);
 	self.image = oImg;
-	// Handle für Connections
-	self.connections[self.connections.length] = new Connection(self);
+    
+    propagateMove();
 
 	// EventListener for moving
 	oImg.on('moving', function(options) {
+        updatePersonPosition(self.id, {'x': self.getLeft(), 'y': self.getTop()});
 		propagateMove();
 		moved = true;
 	});
@@ -35,13 +44,14 @@ fabric.Image.fromURL('http://placekitten.com/g/300/300', function(oImg) {
 
 
 var propagateMove = function() {
+    console.log("Blaa");
 	for (var i = 0; i < self.connections.length; i++) {
-		self.connections[i].updateHandles(self);
+		self.connections[i].updateHandles();
 	}
 }
 
 self.addConnection = function(connection) {
-	// Überprüfen of connection schon enthalten ist
+	// †berprŸfen ob connection schon enthalten ist
 	for (var i = 0; i < self.connections.length; i++) {
 		if (self.connections[i] == connection) {
 			return false;
@@ -65,7 +75,7 @@ self.getLeft = function() {
 }
 
 self.setLeft = function(left) {
-	self.image.setLeft(left); 
+	self.image.setLeft(left);
 	return self; 
 }; 
 
@@ -74,7 +84,7 @@ self.getTop = function() {
 }
 
 self.setTop = function(top) {
-	self.image.setTop(top); 
+	self.image.setTop(top);
 	return self; 
 }
 
@@ -93,8 +103,13 @@ return this;
 // Connection für Beziehungen zweier Personen (Start Person ist immer gegeben, Zielperson steht zu Beginn noch nicht fest)
 Connection = function(startPerson, endPerson) {
 var self = this;
+self.id = idCounter++;
 this.startPerson = startPerson;
 this.endPerson = endPerson;
+
+self.setId = function(id) {
+	self.id = id;
+}
 
 // Circle on Person
 self.circleFrom = new fabric.Circle({
@@ -125,7 +140,7 @@ self.circleFrom.on('modified', function() {
 					// set new startPerson for connection
 					self.startPerson = personen[i];
 					// update visualization
-					self.updateHandles(self.startPerson);
+					self.updateHandles();
 				} else {
 					alert("Verbindungen mit sich selbst werden noch nicht unterstützt");
 				}
@@ -142,11 +157,11 @@ self.circleFrom.on('modified', function() {
 				self.startPerson.removeConnection(self);
 			}
 			self.startPerson = undefined;
-			self.updateHandles(self.endPerson);
+			self.updateHandles();
 		} else {
 			// not valid connection
 			alert("Verbindungen müssen immer zu mindestens einer Person gehören")
-			self.updateHandles(self.startPerson);
+			self.updateHandles();
 		}
 	}
 });
@@ -177,9 +192,9 @@ self.circleTo.on('modified', function() {
 						self.endPerson.removeConnection(self);
 					}
 					self.endPerson = personen[i];
-					self.updateHandles(self.endPerson);
+					self.updateHandles();
 				} else {
-					alert("Verbindungen mit sich selbst werden noch nicht unterstützt");
+					alert("Verbindungen mit sich selbst werden noch nicht unterstŸtzt");
 				}
 			}
 		}
@@ -194,11 +209,11 @@ self.circleTo.on('modified', function() {
 				self.endPerson.removeConnection(self);
 			}
 			self.endPerson = undefined;
-			self.updateHandles(self.startPerson);
+			self.updateHandles();
 		} else {
 			// not valid connection
-			alert("Verbindungen müssen immer zu mindestens einer Person gehören")
-			self.updateHandles(self.endPerson);
+			alert("Verbindungen mŸssen immer zu mindestens einer Person gehšren")
+			self.updateHandles();
 		}
 	}
 });
@@ -294,24 +309,32 @@ this.updateLine = function() {
 }
 
 // um die Darstellung zu korrigieren wenn eine Connection mit beiden Personen gleichzeitig erstellt wurde
-self.updateHandles(self.startPerson);
+self.updateHandles();
 
 };
 
-var addPerson = function() {
-	var person = new PersonElement();
+var addPerson = function(id) {
+	var person = new PersonElement(id);
+	return person;
 }
 
 var addConnection = function(p1, p2) {
 	var connection = new Connection(p1, p2);
 	if (!p1) {
-		alert("Eine Verbindung muss immer zu mindestens einer Person gehören");
+		alert("Eine Verbindung muss immer zu mindestens einer Person gehšren");
 	} else {
 		p1.addConnection(connection);
 	}
 	if (p2) {
 		p2.addConnection(connection);
 	}
+	return connection;
+}
+
+var addConnectionWithId = function(id, p1, p2) {
+	var con = addConnection(p1, p2);
+	con.setId(id);
+	return con;
 }
 
 var removePerson = function(person) {

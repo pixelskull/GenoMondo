@@ -59,9 +59,11 @@ var Menu =  function() {
       var divAddPerson = document.createElement('div');
       divAddPerson.className = "menu-item";
       divAddPerson.addEventListener("click", function() { 
-	      addPerson(); 
+	      var person = addPerson();
+          var con = addConnection(person);
 	      menu(); 
-	      newPerson({'x': 50, 'y': 50},{}); 
+	      newPerson({'x': 50, 'y': 50}, person.id);
+                                    newRelation(con.id, person.id, {});
 	  });
       divAddPerson.innerHTML = 'add Person';
       div.appendChild(divAddPerson);
