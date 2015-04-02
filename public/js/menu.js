@@ -58,7 +58,11 @@ var Menu =  function() {
     } else {
       var divAddPerson = document.createElement('div');
       divAddPerson.className = "menu-item";
-      divAddPerson.addEventListener("click", function() { addPerson(); menu(); });
+      divAddPerson.addEventListener("click", function() { 
+	      addPerson(); 
+	      menu(); 
+	      newPerson({'x': 50, 'y': 50},{}); 
+	  });
       divAddPerson.innerHTML = 'add Person';
       div.appendChild(divAddPerson);
     }

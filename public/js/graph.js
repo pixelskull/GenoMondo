@@ -5,29 +5,34 @@ var canvas = new fabric.Canvas('c');
 var personen = [];
 
 // Graphische Repräsentation einer Person
-PersonElement = function() {
+var PersonElement = function() {
 var self = this;
 // Zu Personensammlung hinzufügen
 personen[personen.length] = self;
 
 // Image (Beispiel)
-self.image;
+self.image = new fabric.Image();
+self.image.setLeft(50).setTop(50);
 self.connections = [];
 
 // Initialize Person
 fabric.Image.fromURL('http://placekitten.com/g/300/300', function(oImg) {
-  oImg.scaleToWidth(100).scaleToHeight(100);
-  oImg.setLeft(50).setTop(50);
-  // EventListener for moving
-  oImg.on('moving', function(options) {
-	propagateMove();
-	moved = true;
-  });
-  canvas.add(oImg);
-  self.image = oImg;
-  // Handle für Connections
-  self.connections[self.connections.length] = new Connection(self);
+	oImg.scaleToWidth(100).scaleToHeight(100);
+	oImg.setLeft(50);
+	oImg.setTop(50);
+
+	canvas.add(oImg);
+	self.image = oImg;
+	// Handle für Connections
+	self.connections[self.connections.length] = new Connection(self);
+
+	// EventListener for moving
+	oImg.on('moving', function(options) {
+		propagateMove();
+		moved = true;
+	});
 });
+
 
 var propagateMove = function() {
 	for (var i = 0; i < self.connections.length; i++) {
@@ -59,8 +64,18 @@ self.getLeft = function() {
 	return self.image.getLeft();
 }
 
+self.setLeft = function(left) {
+	self.image.setLeft(left); 
+	return self; 
+}; 
+
 self.getTop = function() {
 	return self.image.getTop();
+}
+
+self.setTop = function(top) {
+	self.image.setTop(top); 
+	return self; 
 }
 
 self.getWidth = function() {
@@ -71,6 +86,7 @@ self.getHeight = function() {
 	return self.image.getHeight();
 }
 
+// this.person = person;
 return this;
 };
 

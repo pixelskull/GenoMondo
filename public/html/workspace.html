@@ -14,7 +14,6 @@
         <script src="/raphael.js" type="text/javascript" charset="utf-8"></script>
         <script src="/person.js" type="text/javascript" charset="utf-8"></script>
         <script src="/relation.js" type="text/javascript" charset="utf-8"></script>
-        <script src="/menu.js" type="text/javascript" charset="utf-8"></script>
 		<script src="/fabric.js" type="text/javascript" charset="utf-8"></script>
     </head>
     <body>
@@ -22,6 +21,7 @@
         <!--div id="holder" data-trigger="add_element"></div-->
 		<canvas id="c" width="1024" height="768" style="border:1px solid #ccc"></canvas>
 		
+		<script src="/menu.js" type="text/javascript" charset="utf-8"></script>	
 		<script src="/graph.js" type="text/javascript" charset="utf-8"></script>
         
 		<script> 
@@ -34,7 +34,13 @@
 			io.on('newPerson', function(person) {
 				console.log('newPerson');
 				console.log(person);
-				new PersonElement(); 
+				var personelement = new PersonElement(); 
+				
+				console.log(personelement); 
+// 				personelement.person(); 
+// 				personelement.setLeft(person.position.x)
+				personelement.setTop(person.position.y);
+// 				personelement.image.setTop(person.position.y);  
 			}); 
 			
 			io.on('updatePersonPosition', function(person) {
@@ -61,6 +67,7 @@
 			function deleteElement(id) { io.emit('deleteElement', {'id': id }); }
 			
 			function updatePersonPosition(id, pos) { io.emit('updatePersonPosition', {'id': id, 'position': pos }) }
+			
 		</script>
 		<!--script src="/graffle.js" type="text/javascript" charset="utf-8"></script-->
     </body>
