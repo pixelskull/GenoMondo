@@ -21,6 +21,8 @@
         <!--p>Drag shapes around.</p-->
         <!--div id="holder" data-trigger="add_element"></div-->
 		<canvas id="c" width="1024" height="768" style="border:1px solid #ccc"></canvas>
+		
+		<script src="/graph.js" type="text/javascript" charset="utf-8"></script>
         
 		<script> 
 			var io = io.connect();	
@@ -32,16 +34,24 @@
 			io.on('newPerson', function(person) {
 				console.log('newPerson');
 				console.log(person);
+				new PersonElement(); 
+			}); 
+			
+			io.on('updatePersonPosition', function(person) {
+				console.log('updatePersonPosition'); 
+				console.log(person); 
 			}); 
 				
 			io.on('newRelation', function(relation) {
 				console.log('newRelation');
 				console.log(relation);
+				
 			});
 			
 			io.on('deleteElement', function(elementID) {
 				console.log('deleteElement'); 
 				console.log(elementID); 
+				
 			}); 
 			
 			function newPerson(position, size) { io.emit('newPerson', {'position': position, 'size': size}); }
@@ -49,9 +59,9 @@
 			function newRelation(element1, element2) { io.emit('newRelation', {'firstElement': element1, 'secondElement': element2}); }
 			
 			function deleteElement(id) { io.emit('deleteElement', {'id': id }); }
+			
+			function updatePersonPosition(id, pos) { io.emit('updatePersonPosition', {'id': id, 'position': pos }) }
 		</script>
-		
-		<script src="/graph.js" type="text/javascript" charset="utf-8"></script>
 		<!--script src="/graffle.js" type="text/javascript" charset="utf-8"></script-->
     </body>
 </html>

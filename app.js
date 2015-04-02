@@ -43,6 +43,11 @@ io.sockets.on('connection', function(socket) {
 	console.log('a user is connected')
   //Cleaning when User is disconnected
   
+  socket.on('updatePersonPosition', function(person) {
+	  console.log('update Position'); 
+	  console.log(person);
+  }); 
+  
   socket.on('newPerson', function(person) {
 	console.log('newPerson');   
 	console.log(person); 
