@@ -37,8 +37,6 @@
 				console.log('newPerson');
 				console.log(person);
 				var personelement = addPerson(person.id);
-				
-				console.log(personelement);
  				personelement.setLeft(person.position.x);
 				personelement.setTop(person.position.y);
                 
@@ -66,17 +64,45 @@
                 elementMap[relation.id] = con;
 			});
 			
+			io.on('updateRelation', function(relation) {
+				console.log('updateRelation');
+				console.log(relation);
+				
+				// connection
+				var con = elementMap[relation.id];
+				var person = elementMap[relation.newElement];
+				
+				if (relation.toOrFrom == 'from') {
+					// from
+					con.setStartPerson(person);
+				} else {
+					// to
+					con.setEndPerson(person);
+				}
+			});
+			
 			io.on('deleteElement', function(elementID) {
 				console.log('deleteElement'); 
 				console.log(elementID); 
 				
+				var element = elementMap[elementID];
+				if (element.startPerson || element.endPerson) {
+					// connection
+					removeConnection(element);
+				} else {
+					// person
+					removePerson(element);
+				}
+				delete elementMap[elementID]; // from Map as well?
 			}); 
 			
 			function newPerson(position, id) { io.emit('newPerson', {'position': position, 'id': id}); }
 			
 			function newRelation(id, element1, element2) { io.emit('newRelation', {'id': id, 'firstElement': element1, 'secondElement': element2}); }
 			
-			function deleteElement(id) { io.emit('deleteElement', {'id': id }); }
+			function updateRelation(id, toOrFrom, newElement) { io.emit('updateRelation', {'id': id, 'toOrFrom': toOrFrom, 'newElement': newElement }); }
+			
+			function deleteElement(id) { io.emit('deleteElement', id); }
 			
 			function updatePersonPosition(id, pos) { io.emit('updatePersonPosition', {'id': id, 'position': pos }) }
 			

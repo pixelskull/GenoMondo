@@ -42,8 +42,16 @@ var Menu =  function() {
       divRelation = document.createElement('div');
       divDeletePerson.className = "menu-item";
       divRelation.className = "menu-item";
-      divRelation.addEventListener("click", function(){ addConnection(element); menu();  }); //TODO: relation hide unhide
-      divDeletePerson.addEventListener("click", function() {removePerson(element); menu(); })
+      divRelation.addEventListener("click", function(){ 
+		var con = addConnection(element); 
+		menu(); 
+		newRelation(con.id, element.id, {});
+	}); //TODO: relation hide unhide
+      divDeletePerson.addEventListener("click", function() {
+		removePerson(element);
+		menu();
+		deleteElement(element.id);
+	})
       divRelation.innerHTML = "beziehung";
       divDeletePerson.innerHTML = "löschen";
       div.appendChild(divRelation);
@@ -52,7 +60,11 @@ var Menu =  function() {
     } else if (context == "line") {
       var divRelation = document.createElement('div');
       divRelation.className = "menu-item";
-      divRelation.addEventListener('click', function() {removeConnection(element); menu(); });
+      divRelation.addEventListener('click', function() {
+		removeConnection(element); 
+		menu();
+		deleteElement(element.id);
+	});
       divRelation.innerHTML = "löschen";
       div.appendChild(divRelation);
     } else {
@@ -63,7 +75,7 @@ var Menu =  function() {
           var con = addConnection(person);
 	      menu(); 
 	      newPerson({'x': 50, 'y': 50}, person.id);
-                                    newRelation(con.id, person.id, {});
+          newRelation(con.id, person.id, {});
 	  });
       divAddPerson.innerHTML = 'add Person';
       div.appendChild(divAddPerson);

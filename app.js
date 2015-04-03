@@ -59,7 +59,13 @@ io.sockets.on('connection', function(socket) {
   	console.log('newRelation'); 
   	console.log(relation);
   	socket.broadcast.emit('newRelation', relation);
-  }); 
+  });
+
+  socket.on('updateRelation', function(relation) {
+  	console.log('updateRelation'); 
+  	console.log(relation);
+  	socket.broadcast.emit('updateRelation', relation);
+  });  
   
   socket.on('deleteElement', function(elementID) {
 	  console.log('deleteElement'); 
