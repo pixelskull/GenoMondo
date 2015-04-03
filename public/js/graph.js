@@ -32,19 +32,18 @@ fabric.Image.fromURL('http://placekitten.com/g/300/300', function(oImg) {
 	canvas.add(oImg);
 	self.image = oImg;
     
-    propagateMove();
+    self.propagateMove();
 
 	// EventListener for moving
 	oImg.on('moving', function(options) {
         updatePersonPosition(self.id, {'x': self.getLeft(), 'y': self.getTop()});
-		propagateMove();
+		self.propagateMove();
 		moved = true;
 	});
 });
 
 
-var propagateMove = function() {
-    console.log("Blaa");
+self.propagateMove = function() {
 	for (var i = 0; i < self.connections.length; i++) {
 		self.connections[i].updateHandles();
 	}
