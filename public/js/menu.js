@@ -4,38 +4,45 @@ var Menu =  function() {
   contextDic = {},
   menuEnabled = false;
 
-  function menu(context, element) {
-    if (!menuEnabled) {
-      openMenu(context, element);
-      menuEnabled = true;
-    } else {
-      closeMenu();
-      menuEnabled = false;
-    }
-    return self;
+  function menu(position, context, element) {
+	var canvas = document.getElementById('c')
+	if (position) {
+		var x = typeof position.x !== 'undefined' ? position.x : window.innerWidth / 2;
+		var y = typeof position.y !== 'undefined' ? position.y : window.innerHeights / 2; 
+	} else {
+		var x =  window.innerWidth / 2; 
+		var y =  window.innerHeight / 2; 
+	}
+	
+	if (!menuEnabled) {
+		openMenu({'x': x, 'y': y}, context, element);
+		menuEnabled = true;
+	} else {
+		closeMenu();
+		menuEnabled = false;
+	}
+	return self;
   }
 
-  function openMenu(context, element){
-    document.body.appendChild( createMenuForContext(context, element) );
-    return self;
+  function openMenu(position, context, element){
+  	document.body.appendChild( createMenuForContext(position, context, element) );
+  	return self;
   }
 
   function closeMenu(){
     document.body.removeChild( document.getElementById('menu') );
   }
 
-  function createMenuForContext(context, element){
+  function createMenuForContext(position, context, element){
     var div = document.createElement('div'),
-    divExit = document.createElement('div'),
-    divWidth = 0,
+    divExit = document.createElement('div');
+    divWidth = 0;
     divHeight  = 0;
-    div.style.background = "black";
-    div.style.zIndex = 1000;
-    div.id =  "menu";
+    div.id =  'menu';
 
-    divExit.className = "menu-item";
-    divExit.addEventListener("click", function() { menu(); });
-    divExit.innerHTML = "exit";
+    divExit.className = 'menu-item';
+    divExit.addEventListener('click', function() { menu(); });
+    divExit.innerHTML = 'exit';
 
     if (context == "image") {
       var divDeletePerson = document.createElement('div'),
@@ -48,7 +55,6 @@ var Menu =  function() {
       divDeletePerson.innerHTML = "löschen";
       div.appendChild(divRelation);
       div.appendChild(divDeletePerson);
-      console.log(element)
     } else if (context == "line") {
       var divRelation = document.createElement('div');
       divRelation.className = "menu-item";
@@ -67,6 +73,8 @@ var Menu =  function() {
       div.appendChild(divAddPerson);
     }
     div.appendChild(divExit);
+    div.style.left = position.x+'px';
+    div.style.top = position.y+'px';
     return div;
   }
 
