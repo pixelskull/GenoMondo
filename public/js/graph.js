@@ -31,9 +31,8 @@ fabric.Image.fromURL('http://placekitten.com/g/300/300', function(oImg) {
 
 	canvas.add(oImg);
 	self.image = oImg;
-    
     self.propagateMove();
-
+	
 	// EventListener for moving
 	oImg.on('moving', function(options) {
         updatePersonPosition(self.id, {'x': self.getLeft(), 'y': self.getTop()});
@@ -428,8 +427,7 @@ var removeConnection = function(connection) {
 // Eventlistener to open/close Menu
 var menu = new Menu();
 // Canvas does not support doubleclick Event!
-document.addEventListener('dblclick', function() { menu.menu();
-		});
+document.addEventListener('dblclick', function(e) { menu.menu({'x': e.clientX, 'y': e.clientY}); });
 		
 // Event mouse:up only if not at the end of move
 var moved = false;
@@ -441,7 +439,7 @@ canvas.on('mouse:up', function(options) {
 			// search for person to open menu on
 			for (var i = 0; i < personen.length; i++) {
 				if (personen[i].image == options.target) {
-					menu.menu('image', personen[i]);
+					menu.menu({'x': options.e.clientX, 'y': options.e.clientY}, 'image', personen[i]);
 					return;
 				}
 			}
@@ -451,7 +449,7 @@ canvas.on('mouse:up', function(options) {
 				for (var j = 0; j < personen[i].connections.length; j++) {
 					var con = personen[i].connections[j];
 					if (con.circleFrom == options.target || con.circleTo == options.target || con.line == options.target) {
-						menu.menu('line', con);
+						menu.menu({'x': options.e.clientX, 'y': options.e.clientY}, 'line', con);
 						return;
 					}
 				}
